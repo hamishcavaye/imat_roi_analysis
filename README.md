@@ -59,6 +59,11 @@ All configuration values are supplied through a number of Python dataclasses in 
 
 Examples of the used inputs for mass spec and temperature logs can be found in /examples
 
+## Example Outputs
+
+(/assets/example_ref_image.png)  
+(/assets/example_figure.png)  
+
 ## License
 
 See LICENSE. This code is shared under the GNU GENERAL PUBLIC LICENSE Version 3.
