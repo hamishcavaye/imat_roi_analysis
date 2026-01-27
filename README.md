@@ -61,8 +61,8 @@ Examples of the used inputs for mass spec and temperature logs can be found in /
 
 ## Example Outputs
 
-(/assets/example_ref_image.png)  
-(/assets/example_figure.png)  
+![An example image](/assets/example_ref_image.png)  
+![An example figure](/assets/example_figure.png)  
 
 ## License
 
