@@ -1,0 +1,14 @@
+name: imat-roi-analysis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - scikit-image
+  - matplotlib
+  - matplotlib-scalebar
+  - natsort
+  - python-dateutil
+prefix: imat-roi-analysis
