@@ -50,7 +50,7 @@ from pathlib import Path
 from cfg import experiment, run_data
 
 # Set which run to analyse
-run = 5
+run = 1
 run = run_data[run]
 
 ###############################################################################
@@ -365,7 +365,7 @@ df['Elapsed Time'] = timestamp
 # Generate useful titles for the columns in the dataframe to be saved
 columns_titles = ['Absolute Time', 'Elapsed Time']
 if experiment.roi_grid:
-    for r, row in enumerate(roi_groups[run.roi_list]):
+    for r, row in enumerate(roi_groups):
         for c, col in enumerate(row):
             columns_titles.append(r * experiment.grid_cols + c)
     total_rois = experiment.grid_cols * experiment.grid_rows
@@ -379,7 +379,7 @@ if len(standard_rois) > 0:
 df = df[columns_titles]
 # Rename the columns using the generated column titles
 if experiment.roi_grid:
-    for r, row in enumerate(roi_groups[run.roi_list]):
+    for r, row in enumerate(roi_groups):
         for c, col in enumerate(row):
             df = df.rename(columns={(r * experiment.grid_cols) + c : str(r) + "," + str(c)})
 else:

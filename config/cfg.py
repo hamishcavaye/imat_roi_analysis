@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from class_defs import ExperimentConfig, RunConfig, FigPars
+from class_defs import ExperimentConfig, RunConfig, FigPars,ColourMapFig
 
 # Provide the experimental variables in the ExperimentConfig dataclass
 experiment = ExperimentConfig(
@@ -248,3 +248,22 @@ figure_1 = FigPars(
 # respective parameters
 figs_to_plot = [figure_1,
                 ]
+
+grid_fig_1 = ColourMapFig(
+    run = 1,
+    crop_time = True,
+    start_time = "2024-12-13 16:50:00",
+    end_time = "2024-12-13 17:20:00",
+    output_subdir = "Analysis Outputs/CMAP Fig 1 BL/",
+    fig_name = "CMAP Fig 1",
+    colour_minmax = (0, 0.12),
+    ref_image = "/data/analysis/IMAT/RBNumber/RB2420048/Cell_Pd_on_Alumina/Paper Analysis/32939_PH80_CatalystActivation_Grid/reference_image.tif",
+    crop_image = True,
+    # conv_mins = False,
+    # smooth = True,
+    bl = True,
+    samp_thickness = 1.3,
+    total_xsection = 82.574 * 2,
+    )
+
+grid_figs = [grid_fig_1]

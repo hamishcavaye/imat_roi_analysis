@@ -24,6 +24,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from dataclasses import dataclass, field
 from typing import Optional
+from matplotlib.colors import Colormap
+from matplotlib import colormaps
 
 DEFAULT_COLOURS = ["black",
                    "blue",
@@ -152,4 +154,40 @@ class FigPars():
     subplot_label_size: int = 80
     plot_line_width: int = 8
     
-
+@dataclass(kw_only=True)
+class ColourMapFig():
+    run: int
+    output_subdir: str
+    fig_name: str
+    save_format: str = ".png"
+    cmap: Colormap = field(default_factory=lambda: colormaps["inferno"])
+    colour_minmax: tuple[float, float] = (0, 1.0)
+    log: bool = False
+    heatmap_alpha: float = 0.7     # Transparency to use on the heatmap overlay
+    bar_shrink_factor: float = 0.9     # Adjusts the size of the heatmap colour legend/bar
+    ref_image: str
+    conv_mins: bool = True
+    normalise: bool = True
+    smooth: bool = True
+    savgol_window: int = 21
+    savgol_polyorder: int = 3
+    crop_time: bool = False
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    tzero: bool = True
+    normalise_tzero: bool = True
+    crop_image: bool = False
+    crop_limits: tuple[tuple[int, int], tuple[int, int]] = ((750, 1280), (1400, 550))
+    timestamp_colour: str = "white"
+    timestamp_loc: tuple[float, float] = (0.1, 0.92)     # Graph fractions x, y to locate the timestamp
+    timestamp_font_size: int = 32
+    axes_label_font_size: int = 18
+    tick_font_size: int = 12
+    figure_size: tuple[int, int] = (8, 8)
+    scale_bar: Optional[tuple[float, int]] = None      # (pixel scale in mm, scale bar size in mm)
+    scale_bar_pos: tuple[str, str] =  ("lower left", "white")
+    bl: bool = False    # Perform Beer-Lambert conversion?
+    bl_axis_title: str = "H$_2$ conc. (mmol cm$^{-3}$)"
+    samp_thickness: Optional[float] = None  # in cm
+    total_xsection: Optional[float] = None  # in barns
+    
