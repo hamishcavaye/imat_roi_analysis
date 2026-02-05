@@ -9,6 +9,7 @@ The workflow performs:
 - Parsing of temperature logs
 - Image calibration and ROI extraction
 - Multi-run time-aligned figure plotting
+- Timelapse grid "heat maps" with or without Beer-Lambert concentration conversions
 
 The project has been designed to be run in a Conda environment (e.g. via Spyder) and uses a configuration-driven structure through Python dataclasses. These configs can be tailored for a specific experiment, including numerous "runs" and multiple output figures with different parameters.
 
@@ -22,6 +23,7 @@ imat_roi_analysis/
 |   |-- 02b_Temp_Parsing.py
 |   |-- 03_Image_Processing.py
 |   |-- 04_Figure_Plotting.py
+|   |-- 04b_Grid_Plotting.py
 |
 |-- config/
 |   |-- class_defs.py
@@ -52,6 +54,9 @@ Each script is numbered in the order it should be executed:
 - 04_Figure_Plotting.py
     - Loads outputs from all previous steps
     - Produces publication quality figures
+- 04b_Grid_Plotting.py
+    - Processing the data previously analysed in grid
+    - Outputs multilple frames with a heatmap overlaid on the reference image
 
 All configuration values are supplied through a number of Python dataclasses in config/example_cfg.py
 
