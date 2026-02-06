@@ -10,8 +10,9 @@ The workflow performs:
 - Image calibration and ROI extraction
 - Multi-run time-aligned figure plotting
 - Timelapse grid "heat maps" with or without Beer-Lambert concentration conversions
+- Automatic generation of difference images by subtraction of a reference
 
-The project has been designed to be run in a Conda environment (e.g. via Spyder) and uses a configuration-driven structure through Python dataclasses. These configs can be tailored for a specific experiment, including numerous "runs" and multiple output figures with different parameters.
+The project has been designed to be run in a Conda environment (e.g. via Spyder) and uses a configuration-driven structure through Python dataclasses. These configs can be tailored for a specific experiment, including numerous "runs" and multiple output figures with different parameters, allowing the configuration file to be saved for each experiment independently for future reference.
 
 ## Repository Structure
 ```
@@ -24,6 +25,7 @@ imat_roi_analysis/
 |   |-- 03_Image_Processing.py
 |   |-- 04_Figure_Plotting.py
 |   |-- 04b_Grid_Plotting.py
+|   |-- 04c_Difference_Image.py
 |
 |-- config/
 |   |-- class_defs.py

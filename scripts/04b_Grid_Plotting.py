@@ -176,7 +176,7 @@ def _process_one_frame(args):
 
     plt.axis("off")
 
-    # Save filename mirrors your current logic
+    # Save filename
     if p["conv_mins"]:
         filename = str(int(elapsed_value * 60)).zfill(5) + ".png"
     else:

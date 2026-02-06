@@ -21,7 +21,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from class_defs import ExperimentConfig, RunConfig, FigPars,ColourMapFig
+from class_defs import ExperimentConfig, RunConfig, FigPars, ColourMapFig, DiffImg
 
 # Provide the experimental variables in the ExperimentConfig dataclass
 experiment = ExperimentConfig(
@@ -267,3 +267,16 @@ grid_fig_1 = ColourMapFig(
     )
 
 grid_figs = [grid_fig_1]
+
+diff_img_1 = DiffImg(
+    run = 1,
+    output_subdir = "Analysis Outputs/Diff Fig 1/",
+    fig_name = "Diff Fig 1",
+    ref_image = "/data/analysis/IMAT/RBNumber/RB2420048/Cell_Pd_on_Alumina/Paper Analysis/32939_PH80_CatalystActivation_Grid/reference_image.tif",
+    crop_limits = ((480, 300), (1100, 1200)),
+    # frame_select = (0, 500),
+    scale_bar = (0.103, 20),         # "(pixel scale in mm, scale bar size in mm)"
+    
+    )
+
+diff_imgs = [diff_img_1]

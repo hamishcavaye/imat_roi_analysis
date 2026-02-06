@@ -191,3 +191,21 @@ class ColourMapFig():
     samp_thickness: Optional[float] = None  # in cm
     total_xsection: Optional[float] = None  # in barns
     
+@dataclass(kw_only=True)
+class DiffImg():
+    run: int
+    output_subdir: str
+    fig_name: str
+    save_format: str = ".png"
+    ref_image: str
+    conv_mins: bool = True
+    frame_select: Optional[tuple[int, int]] = None
+    crop_limits: Optional[tuple[tuple[int, int], tuple[int, int]]] = None       # ((x, y), (w, h))
+    timestamp_colour: str = "white"
+    timestamp_loc: tuple[float, float] = (0.05, 0.95)     # Graph fractions x, y to locate the timestamp
+    timestamp_font_size: int = 32
+    figure_size: tuple[int, int] = (8, 8)
+    scale_bar: Optional[tuple[float, int]] = None      # (pixel scale in mm, scale bar size in mm)
+    scale_bar_pos: tuple[str, str] =  ("lower right", "black")
+    noise_control: bool = False
+    stretch_pct: tuple[float, float] = field(default_factory=lambda: [2, 95])
