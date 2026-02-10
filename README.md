@@ -59,6 +59,9 @@ Each script is numbered in the order it should be executed:
 - 04b_Grid_Plotting.py
     - Processing the data previously analysed in grid
     - Outputs multilple frames with a heatmap overlaid on the reference image
+- 04c_Difference_Image.py
+    - Subtracts an initial reference frame from a batch of frames to generate a difference
+    - Automatically stretches the histogram and adds timestamp and scalebar
 
 All configuration values are supplied through a number of Python dataclasses in config/example_cfg.py
 
