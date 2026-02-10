@@ -72,7 +72,16 @@ Examples of the used inputs for mass spec and temperature logs can be found in /
 ## Example Outputs
 
 ![An example image](/assets/example_ref_image.png)  
+1. An example output reference image with coloured ROIs.
+
 ![An example figure](/assets/example_figure.png)  
+2. An example figure showing double plot with mass spec & temperature (top) with neutron data (bottom) sharing a time axis.
+
+![An example figure](/assets/example_cmap.png)  
+3. An example figure showing a grid-based colourmap.
+
+![An example figure](/assets/example_diff.png)  
+4. An example difference frame.
 
 ## License
 
