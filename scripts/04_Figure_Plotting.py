@@ -37,7 +37,7 @@ from pathlib import Path
 from cfg import experiment, run_data, figs_to_plot
 
 # Choose which figure to plot (counts from 0!)
-figpars = figs_to_plot[1]
+figpars = figs_to_plot[0]
 
 ###############################################################################
 

@@ -37,7 +37,7 @@ from pathlib import Path
 from cfg import experiment, run_data, diff_imgs
 
 # Set which run to analyse
-run = 1
+run = 3
 run = run_data[run]
 
 img = 0

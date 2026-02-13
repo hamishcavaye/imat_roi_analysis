@@ -213,7 +213,7 @@ def process_frame_and_save(i, frame):
     
     # If you have an internal standard ROI to process, do that here and append 
     # the results
-    if len(standard_rois) > 0:
+    if standard_rois:
         for s in std_slices:
             average_greyvalues.append(np.mean(im[s]))
 
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     # Generate the slices if using an ROI list
     if not experiment.roi_grid:
         roi_slices = [roi_to_slice(*roi) for roi in roi_groups[run.roi_list]]
-    if len(standard_rois) > 0:
+    if standard_rois:
         std_slices = [roi_to_slice(*roi) for roi in standard_rois]
 
     # Use ProcessPoolExecutor to perform the parallel processing
@@ -329,7 +329,7 @@ if experiment.save_reference_frame:
                              facecolor="none")
     ax.add_patch(rect)
     # Add any standard/quantification ROIs that may be in the image
-    if len(standard_rois) > 0:
+    if standard_rois:
         for count, roi in enumerate(standard_rois, start=0):
             rect = patches.Rectangle((roi[0], roi[1]), roi[2], roi[3],
                                      linewidth = 6,
@@ -373,7 +373,7 @@ else:
     for count, roi in enumerate(roi_groups[run.roi_list]):
         columns_titles.append(count)
     total_rois = len(roi_groups[run.roi_list])
-if len(standard_rois) > 0:
+if standard_rois:
     for count, roi in enumerate(standard_rois):
         columns_titles.append(total_rois + count)
 df = df[columns_titles]
@@ -385,7 +385,7 @@ if experiment.roi_grid:
 else:
     for count, roi in enumerate(roi_groups[run.roi_list]):
         df = df.rename(columns={count : "ROI " + str(count+1)})
-if len(standard_rois) > 0:
+if standard_rois:
     for count, roi in enumerate(standard_rois):
         df = df.rename(columns={total_rois+count : "Standard " + str(count+1)})
         

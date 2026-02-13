@@ -17,6 +17,10 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+To-do:
+    - Provide a flag in class_defs / cfg that allows you to plot in
+      Increased transmission, rather than Decreased transmission
 """
 
 import matplotlib.pyplot as plt
@@ -88,7 +92,7 @@ def crop_image_and_grid(image, crop_limits, grid):
 _G = {}
 
 def _init_worker(ref_image, grid_array, 
-                 cmap_name, use_log, vmin, vmax, figpars_min, output_dir):
+                 cmap_name, use_log, centre, vmin, vmax, figpars_min, output_dir):
     """
     Initializer runs once per worker process. Populate a small global dict.
     """
@@ -102,6 +106,8 @@ def _init_worker(ref_image, grid_array,
 
     if use_log:
         norm = colors.LogNorm(vmin=vmin, vmax=vmax)
+    elif col_norm["norm"] == "twinslope":
+        norm = colors.TwoSlopeNorm(vcenter=centre, vmin=vmin, vmax=vmax)
     else:
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
 
@@ -250,6 +256,7 @@ for a_time in total_data['Absolute Time']:
     elapsed_time_list.append(e_time)
 total_data.insert(loc=1, column='Elapsed Time', value = pd.Series(elapsed_time_list))
 total_data.sort_values('Absolute Time', inplace=True)
+# total_data = total_data.copy()      # Generates a fresh, unfragmented dataframe
 
 # If require the smoothed data, smooth it here
 if figpars.smooth:
@@ -351,10 +358,28 @@ if figpars.crop_image:
         grid
     )
 
+# Build an array of the values to plot for all frames, ordered by grid_elements
+# This avoids indexing per patch inside workers.
+values_matrix = data_to_plot[grid_elements].to_numpy()  # shape: (n_frames, n_patches)
+
+# Apply the per-pixel transform:
+if figpars.bl:
+    values_matrix = beer_lambert_conv(values_matrix,
+                                      figpars.samp_thickness,
+                                      figpars.total_xsection
+                                      )
+elif figpars.invert_scale:
+    # This means the result being plotted is "Reduced Transmission %"
+    values_matrix = (1.0 - values_matrix) * 100.0
+
 # Prepare minimal parameters (avoid passing the whole dataclass into workers)
+col_norm = figpars.cmap_norm
 cmap_name = figpars.cmap.name                         # safer to pass name
-use_log = bool(figpars.log)
-vmin, vmax = figpars.colour_minmax[0], figpars.colour_minmax[1]
+use_log = True if col_norm["norm"] == "log" else False
+vmin, vmax = col_norm["vmin"], col_norm["vmax"]
+if col_norm["norm"] == "twinslope":
+    centre = col_norm["centre"]
+else: centre = None
 figpars_min = {
     "figure_size": figpars.figure_size,
     "heatmap_alpha": figpars.heatmap_alpha,
@@ -368,23 +393,8 @@ figpars_min = {
     "scale_bar": figpars.scale_bar,
     "scale_bar_pos": figpars.scale_bar_pos,
     "fig_name": figpars.fig_name,
-    "cbar_axis_title": figpars.bl_axis_title if figpars.bl else "Reduced Transmission (%)",
+    "cbar_axis_title": figpars.bl_axis_title if figpars.bl else figpars.cbar_title,
 }
-
-# Build an array of the values to plot for all frames, ordered by grid_elements
-# This avoids indexing per patch inside workers.
-values_matrix = data_to_plot[grid_elements].to_numpy()  # shape: (n_frames, n_patches)
-
-# Apply the per-pixel transform:
-if figpars.bl:
-    values_matrix = beer_lambert_conv(values_matrix,
-                                      figpars.samp_thickness,
-                                      figpars.total_xsection
-                                      )
-else:
-    # intensity = (1 - intensity) * 100
-    # This means the result being plotted is "Reduced Transmission %"
-    values_matrix = (1.0 - values_matrix) * 100.0
 
 # Create the per-frame argument tuples
 elapsed = data_to_plot["Elapsed Time"].to_numpy()  # vector of elapsed times
@@ -402,7 +412,7 @@ with ProcessPoolExecutor(
     initargs=(
         ref_image,     # already cropped
         grid,          # already shifted
-        cmap_name, use_log, vmin, vmax,
+        cmap_name, use_log, centre, vmin, vmax,
         figpars_min, output_dir,
     )
 ) as ex:
