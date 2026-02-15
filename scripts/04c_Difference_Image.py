@@ -30,6 +30,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from matplotlib_scalebar.scalebar import ScaleBar
 from dataclasses import asdict
 from pathlib import Path
+from utils import create_outputdir, save_runtime
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -46,14 +47,9 @@ diffimg = diff_imgs[img]
 
 ###############################################################################
 
-output_dir = Path(experiment.exp_outputs_path) / diffimg.output_subdir
-
 # If the output path doesn't exist, create it
-if not output_dir.exists():
-    print("---")
-    print("Output directory doesn't exist, creating it.")
-    print(" ")
-    output_dir.mkdir(parents=True, exist_ok=True)
+output_dir = Path(experiment.exp_outputs_path) / diffimg.output_subdir
+create_outputdir(output_dir)
     
 # Save the parameters and script as .txt for later reference
 print("---")
@@ -282,7 +278,4 @@ if __name__ == '__main__':
 
 # Timestamp the end of the process
 total_run_time = time.time() - total_start_time
-print(" ")
-print("--- Processing finished in %s seconds ---" % (int(total_run_time)))
-filename = 'timestamp_processing_timer.txt'
-(output_dir / filename).write_text(f"Total run time = {total_run_time} s")
+save_runtime(output_dir, "timestamp_processing_timer.txt", total_run_time)

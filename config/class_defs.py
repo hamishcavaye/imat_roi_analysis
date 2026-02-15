@@ -163,7 +163,7 @@ class ColourMapFig():
     invert_scale: bool = True
     cbar_title: str = "Reduced Transmission (%)"
     cmap: Colormap = field(default_factory=lambda: colormaps["inferno"])
-    cmap_norm: dict = field(default_factory=lambda: {"norm": "norm", "vmin": 0, "vmax": 0.12})   #"norm", "log", "twinslope"
+    cmap_norm: dict = field(default_factory=lambda: {"norm": "norm", "vmin": 0, "vmax": 0.12})   #"norm" can be "norm", "log", "twinslope"
     heatmap_alpha: float = 0.7     # Transparency to use on the heatmap overlay
     bar_shrink_factor: float = 0.9     # Adjusts the size of the heatmap colour legend/bar
     ref_image: str

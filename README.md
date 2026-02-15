@@ -26,6 +26,7 @@ imat_roi_analysis/
 |   |-- 04_Figure_Plotting.py
 |   |-- 04b_Grid_Plotting.py
 |   |-- 04c_Difference_Image.py
+|   |-- utils.py
 |
 |-- config/
 |   |-- class_defs.py
@@ -62,6 +63,8 @@ Each script is numbered in the order it should be executed:
 - 04c_Difference_Image.py
     - Subtracts an initial reference frame from a batch of frames to generate a difference
     - Automatically stretches the histogram and adds timestamp and scalebar
+- utils.py
+    - Functions used by multiple scripts
 
 All configuration values are supplied through a number of Python dataclasses in config/example_cfg.py
 

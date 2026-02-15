@@ -33,7 +33,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import time, csv, json
 import numpy as np
 from skimage import io
-from scipy import ndimage
 import dateutil.parser as dparser
 from natsort import natsorted 
 import pandas as pd
@@ -43,6 +42,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from matplotlib_scalebar.scalebar import ScaleBar
 from dataclasses import asdict
 from pathlib import Path
+from utils import outlier_removal, create_outputdir, save_runtime
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -55,14 +55,9 @@ run = run_data[run]
 
 ###############################################################################
 
-output_dir = Path(experiment.exp_outputs_path) / run.output_name
-
 # If the output path doesn't exist, create it
-if not output_dir.exists():
-    print("---")
-    print("Output directory doesn't exist, creating it.")
-    print(" ")
-    output_dir.mkdir(parents=True, exist_ok=True)
+output_dir = Path(experiment.exp_outputs_path) / run.output_name
+create_outputdir(output_dir)
     
 # Save the parameters and script as .txt for later reference
 print("---")
@@ -114,17 +109,6 @@ dark_flat_path = Path(experiment.exp_outputs_path) / experiment.dark_flat_output
 master_dark = io.imread(dark_flat_path / "master_dark.tif")
 master_flat_dark_corrected = io.imread(dark_flat_path / "dark_subtracted_master_flat.tif")
 inverse_master_flat = 1.0 / np.maximum(master_flat_dark_corrected.astype(np.float32, copy=False), 1e-6)
-
-def outlier_removal(image, bright_threshold, dark_threshold, radius):
-    """
-    Process a given image to remove outliers based on a bright pixel
-    and dark pixel threshold values and a radius.
-    """
-    median_image = ndimage.median_filter(image, size=(radius,radius))
-    outliers_bright = (image - median_image) > bright_threshold
-    outliers_dark = (median_image - image) > dark_threshold
-    result = np.where(outliers_bright | outliers_dark, median_image, image)
-    return result
 
 # Get the full list of filenames and truncate if necessary
 print("---")
@@ -395,6 +379,4 @@ df.to_csv(out_name, index=False)
 
 # Timestamp the end of the process
 total_run_time = time.time() - total_start_time
-print(" ")
-print("--- Processing finished in %s seconds ---" % (int(total_run_time)))
-(output_dir / 'image_processing_timer.txt').write_text(f"Total run time = {total_run_time} s")
+save_runtime(output_dir, "image_processing_timer.txt", total_run_time)

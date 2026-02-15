@@ -30,6 +30,7 @@ import time, json
 from scipy.signal import savgol_filter
 from dataclasses import asdict
 from pathlib import Path
+from utils import create_outputdir, save_runtime
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -58,15 +59,9 @@ total_start_time = time.time()
 # Import a list of colours to use for the ROIs
 colours = experiment.colours
 
-# Get the output directory for the figure you are plotting
-output_dir = Path(experiment.exp_outputs_path) / figpars.output_subdir
-
 # If the output path doesn't exist, create it
-if not output_dir.exists():
-    print("---")
-    print("Output directory doesn't exist, creating it.")
-    print(" ")
-    output_dir.mkdir(parents=True, exist_ok=True)
+output_dir = Path(experiment.exp_outputs_path) / figpars.output_subdir
+create_outputdir(output_dir)
 
 # Save the parameters and script as .txt for later reference
 print("---")
@@ -400,6 +395,5 @@ figure.savefig(out_file, bbox_inches="tight")
 
 # Finally save a file to say how long the total script ran for
 total_run_time = time.time() - total_start_time
-print("--- Total analysis finished in %s seconds ---" % (total_run_time))
-(output_dir / 'analysis_script_timer.txt').write_text(f"Total run time = {total_run_time} s")
+save_runtime(output_dir, "analysis_script_timer.txt", total_run_time)
 

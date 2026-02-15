@@ -26,9 +26,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import time, json
 import numpy as np
 from skimage import io
-from scipy import ndimage
 from dataclasses import asdict
 from pathlib import Path
+from utils import outlier_removal, create_outputdir, save_runtime
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -40,11 +40,7 @@ total_start_time = time.time()
 
 # If the output path doesn't exist, create it
 output_dir = Path(experiment.exp_outputs_path) / experiment.dark_flat_output_path
-if not output_dir.exists():
-    print("---")
-    print("Output directory doesn't exist, creating it.")
-    print(" ")
-    output_dir.mkdir(parents=True, exist_ok=True)
+create_outputdir(output_dir)
     
 # Write the settings we used to a .txt for later reference
 print("---")
@@ -55,17 +51,6 @@ snippet = Path(__file__).read_text()
 exp_dict = asdict(experiment)
 exp_dict["reference_frame_range"] = list(experiment.reference_frame_range)
 (output_dir / "experiment_parameters.txt").write_text(json.dumps(exp_dict, indent=4))
-
-def outlier_removal(image, bright_threshold, dark_threshold, radius):
-    """
-    Process a given image to remove outliers based on a bright pixel
-    and dark pixel threshold values and a radius.
-    """
-    median_image = ndimage.median_filter(image, size=(radius,radius))
-    outliers_bright = (image - median_image) > bright_threshold
-    outliers_dark = (median_image - image) > dark_threshold
-    result = np.where(outliers_bright | outliers_dark, median_image, image)
-    return result
 
 # Load the images
 print("---")
@@ -154,9 +139,8 @@ for a, paths in enumerate([experiment.dark_paths, experiment.flat_paths]):
 
 # Timestamp the end of the process
 total_run_time = time.time() - total_start_time
-print(" ")
-print("--- Processing finished in %s seconds ---" % (int(total_run_time)))
+save_runtime(output_dir, "dark_flat_settings.txt", total_run_time)
 with (output_dir / 'dark_flat_settings.txt').open('a') as f:
+    f.write("\n")
     f.write("number of dark frames used = " + str(master_dark_numbers) + "\n")
     f.write("number of flat frames used = " + str(master_flat_numbers) + "\n")
-    f.write("total_run_time = " + str(total_run_time) + "\n")

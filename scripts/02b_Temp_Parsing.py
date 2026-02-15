@@ -26,6 +26,7 @@ import pandas as pd
 import json
 from dataclasses import asdict
 from pathlib import Path
+from utils import create_outputdir
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -34,11 +35,7 @@ from cfg import experiment
 
 # If the output path doesn't exist, create it
 output_dir = Path(experiment.temp_data_output_path)
-if not output_dir.exists():
-    print("---")
-    print("Output directory doesn't exist, creating it.")
-    print(" ")
-    output_dir.mkdir(parents=True, exist_ok=True)
+create_outputdir(output_dir)
     
 # Write the settings we used to a .txt for later reference
 print("---")
