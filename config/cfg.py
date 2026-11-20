@@ -5,20 +5,10 @@ publication.
 
 This script defines the variables for one experiment.
 
-Copyright (C) 2026  Hamish Cavaye
+Hamish Cavaye - January 2026
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+To-do list:
+    - 
 """
 
 from class_defs import ExperimentConfig, RunConfig, FigPars, ColourMapFig, DiffImg
@@ -34,7 +24,7 @@ experiment = ExperimentConfig(
                   '/data/instrument/IMAT/2024/RB2420048-1/RB2420048/Cell_Pd_on_Alumina/PH80_Dark_End_5sec/'],
     flat_paths = ['/data/instrument/IMAT/2024/RB2420048-1/RB2420048/Cell_Pd_on_Alumina/PH80_OpenBeam_Start_5sec/', 
                   '/data/instrument/IMAT/2024/RB2420048-1/RB2420048/Cell_Pd_on_Alumina/PH80_OpenBeam_End_5sec/'],
-    dark_flat_output_path = "Master_Frames/",
+    dark_flat_output_path = "Master Frames/",
     
     csv_path = "/data/analysis/IMAT/RBNumber/RB2420048/Cell_Pd_on_Alumina/",
     
@@ -71,7 +61,10 @@ experiment = ExperimentConfig(
     dark_threshold = 1000,
     outlier_radius = 3,
     
-    roi_grid = False,
+    # roi_grid = True,
+    # grid_position = (830, 700, 370, 560),
+    # grid_rows = 20,
+    # grid_cols = 8,
     roi_groups = [[(850, 800, 330, 60),
                  (850, 890, 330, 60),
                  (850, 980, 330, 60),
@@ -80,12 +73,12 @@ experiment = ExperimentConfig(
                  (900, 655, 220, 35),
                  (600, 240, 330, 80)
                  ],
-                  [(850, 745, 200, 30),
-                   (850, 800, 330, 60),
-                   (850, 890, 330, 60),
-                   (850, 980, 330, 60),
-                   (850, 1070, 330, 60),
-                   (850, 1160, 330, 60),
+                  [(850, 745, 200, 40),
+                   (850, 800, 330, 80),
+                   (850, 890, 330, 80),
+                   (850, 980, 330, 80),
+                   (850, 1070, 330, 80),
+                   (850, 1160, 330, 80),
                    (900, 655, 220, 35),
                    (600, 240, 330, 80)
                    ]
@@ -110,7 +103,7 @@ experiment = ExperimentConfig(
     save_full_frames = False,
     
     save_reference_frame = True,
-    reference_frame_range = range(0,20),
+    reference_frame_range = range(0,20), #range(815,835),
     use_scale_bar = True,
     scale_bar = (0.103, 50),         # "(pixel scale in mm, scale bar size in mm)"
     scale_bar_pos = ("lower right", "black")
@@ -131,6 +124,7 @@ Run2 = RunConfig(
     csvlog = "IMAT00032940_Cell_Pd_on_AluminaPH80_Acetylene_HydrogenRich_log.csv",
     roi_list = 1,
     output_name = "32940_PH80_Acetylene_HydrogenRich",
+    # output_name = "32940_PH80_Acetylene_HydrogenRich_fullframes_2",
     )
 
 Run3 = RunConfig(
@@ -208,14 +202,19 @@ run_data = [None,
 
 # Provide a list of figure dataclasses used for plotting figures
 figure_1 = FigPars(
-    output_subdir = "Analysis Outputs/Figure 1/",
+    output_subdir = "Paper Figures/01 Reduction (No Smoothing)/",
     fig_name = "Figure 1",
     plot_mode = "both",
     savgol_window = 21,
     savgol_polyorder = 3,
     crop_time = True,
-    start_time = "2024-12-13 15:00:00",
-    end_time = "2024-12-17 08:00:00",
+    start_time = "2024-12-13 16:35:00",
+    end_time = "2024-12-13 19:30:00",
+    smooth = False,
+    mask_ndata = False,
+    mask_range = [("2024-12-13 17:10:00", "2024-12-13 17:18:00"),
+                  ("2024-12-13 18:05:00", "2024-12-13 18:20:00"),
+                  ],
     mass_spec_pars = [('Hydrogen (2)', 0, 'below', 'Hydrogen'),
                       ('Helium (4)', 1, 'above', 'Helium'),
                       ('Water (18)', 2, 'below', 'Water'),
@@ -223,17 +222,19 @@ figure_1 = FigPars(
                       # ('Ethylene/Ethane (27)', 4, 'below', 'Ethene (27)'),
                       # ('Ethylene (28)', 5, 'below', 'Ethene (28)'),
                       # ('Ethane (30)', 6, 'below', 'Ethane'),
-                      ('Argon (40)', 7, 'below', 'Argon'),
+                      # ('Argon (40)', 7, 'below', 'Argon'),
                       ],
+    mass_spec_label_size = 100,
     plot_temp = True,
     # smooth_temp = True,
     plot_inset = True,
-    inset_axes_loc = [0.3, 0.1, 0.4, 0.5],
-    inset_axes_xlim = [6,22],
-    inset_axes_ylim = [0.99,1.01],
-    # plot_arrow = [[1000, "", "up", 0.2, 0.2],
-    #               [1500, "2", "down", 0.01, 0.1],
-    #               ]
+    inset_axes_loc = [0.05, 0.3, 0.25, 0.6],
+    inset_axes_xlim = [12,21],
+    inset_axes_ylim = [0.985,1.01],
+    plot_arrow = [[14, "", "up", 0, 0.1, ["n"]],
+                  [14, "", "up", 0.1, 0.1, ["ms"]],
+                  [14, "", "down", 0.85, 0.15, ["inset"]],
+                  ],
     subplot_labels = [["ms", "a", (0.95, 0.025)],
                       ["n", "b", (0.95, 0.025)],
                       ["inset", "c", (0.05, 0.05)],
@@ -242,11 +243,195 @@ figure_1 = FigPars(
     # double_figure_size = (12,8),
     plot_line_width = 12,
     axes_label_font_size = 82,
+    # custom_ms_ylimits = (0.0000000001, 0.00001),
+    custom_temp_ylimits= (0, 180),
+)
+
+figure_1bl = FigPars(
+    output_subdir = "Paper Figures/01 Drying BL/",
+    fig_name = "Figure 1bl",
+    plot_mode = "both",
+    savgol_window = 21,
+    savgol_polyorder = 3,
+    crop_time = True,
+    start_time = "2024-12-13 17:20:00",
+    end_time = "2024-12-13 19:30:00",
+    smooth = False,
+    mask_ndata = True,
+    mask_range = [("2024-12-13 18:05:00", "2024-12-13 18:20:00"),
+                  ],
+    mass_spec_pars = [('Hydrogen (2)', 0, 'below', 'Hydrogen'),
+                      ('Helium (4)', 1, 'above', 'Helium'),
+                      ('Water (18)', 2, 'below', 'Water'),
+                      # ('Acetylene (26)', 3, 'below', 'Acetylene'),
+                      # ('Ethylene/Ethane (27)', 4, 'below', 'Ethene (27)'),
+                      # ('Ethylene (28)', 5, 'below', 'Ethene (28)'),
+                      # ('Ethane (30)', 6, 'below', 'Ethane'),
+                      # ('Argon (40)', 7, 'below', 'Argon'),
+                      ],
+    mass_spec_label_size = 100,
+    plot_temp = True,
+    # smooth_temp = True,
+    plot_inset = True,
+    inset_axes_loc = [0.6, 0.3, 0.25, 0.6],
+    inset_axes_xlim = [5,15],
+    inset_axes_ylim = [-1.0,0.12],
+    # plot_arrow = [[14, "", "up", 0, 0.1, ["n"]],
+    #               [14, "", "up", 0.1, 0.1, ["ms"]],
+    #               [14, "", "down", 0.85, 0.15, ["inset"]],
+    #               ],
+    subplot_labels = [["ms", "a", (0.95, 0.025)],
+                      ["n", "b", (0.95, 0.8)],
+                      ["inset", "c", (0.05, 0.05)],
+                      ],
+    subplot_label_size = 120,
+    # double_figure_size = (12,8),
+    plot_line_width = 12,
+    axes_label_font_size = 82,
+    # custom_ms_ylimits = (0.0000000001, 0.00001),
+    custom_temp_ylimits= (0, 180),
+    bl = True,
+    bl_axis_title = "H$_2$O conc. (mmol cm$^{-3}$)",
+    samp_thickness = 1.3,
+    total_xsection = 82.574 * 2 + 4.232,
+)
+
+figure_2 = FigPars(
+    output_subdir = "Paper Figures/02 Acetylene Introduction",
+    fig_name = "Figure 2",
+    plot_mode = "both",
+    # smooth = False,
+    savgol_window = 21,
+    savgol_polyorder = 3,
+    crop_time = True,
+    start_time = "2024-12-13 22:20:00",
+    end_time = "2024-12-14 03:31:00",
+    mass_spec_pars = [('Hydrogen (2)', 0, 'below', 'Hydrogen'),
+                      ('Helium (4)', 1, 'above', 'Helium'),
+                      # ('Water (18)', 2, 'below', 'Water'),
+                      ('Acetylene (26)', 3, 'above', 'Acetylene (26)'),
+                      # ('Ethylene/Ethane (27)', 4, 'below', 'Ethene (27)'),
+                      ('N2/CO/C2H4 (28)', 5, 'above', 'Ethene (28)'),
+                      ('Ethane (30)', 6, 'below', 'Ethane (30)'),
+                      ('Argon (40)', 7, 'below', 'Argon'),
+                      ],
+    plot_temp = True,
+    # smooth_temp = True,
+    plot_inset = False,
+    inset_axes_loc = [0.02, 0.25, 0.2, 0.7],
+    inset_axes_xlim = [4,25],
+    inset_axes_ylim = [0.985,1.015],
+    plot_arrow = [[12, "", "up", 0.8, 0.1, ["n"]],
+                  [12, "", "down", 0.87, 0.1, ["ms"]],
+                  # [12, "", "down", 0.85, 0.15, ["inset"]],
+                  ],
+    subplot_labels = [["ms", "a", (0.95, 0.15)],
+                      ["n", "b", (0.95, 0.1)],
+                      ["inset", "c", (0.05, 0.05)],
+                      ],
+    subplot_label_size = 120,
+    # double_figure_size = (12,8),
+    plot_line_width = 12,
+    axes_label_font_size = 82,
+    custom_temp_ylimits=(0,100),
+    custom_ms_ylimits = (0.00000000001, 0.00005),
+)
+
+figure_3 = FigPars(
+    output_subdir = "Paper Figures/03 Acetylene High T",
+    fig_name = "Figure 3",
+    plot_mode = "both",
+    # smooth = False,
+    savgol_window = 21,
+    savgol_polyorder = 3,
+    crop_time = True,
+    start_time = "2024-12-14 11:10:00",
+    end_time = "2024-12-15 03:40:00",
+    mask_ndata = True,
+    mask_range = [("2024-12-14 22:00:00", "2024-12-14 22:40:00"),
+                  ],
+    mass_spec_pars = [('Hydrogen (2)', 0, 'below', 'Hydrogen'),
+                      # ('Helium (4)', 1, 'above', 'Helium'),
+                      # ('Water (18)', 2, 'below', 'Water'),
+                      ('Acetylene (26)', 3, 'above', 'Acetylene (26)'),
+                      # ('Ethylene/Ethane (27)', 4, 'below', 'Ethene (27)'),
+                      ('N2/CO/C2H4 (28)', 5, 'above', 'Ethene (28)'),
+                      ('Ethane (30)', 6, 'below', 'Ethane (30)'),
+                      ('Argon (40)', 7, 'below', 'Argon'),
+                      ],
+    plot_temp = True,
+    # smooth_temp = True,
+    plot_inset = True,
+    inset_axes_loc = [0.20, 0.07, 0.3, 0.38],
+    inset_axes_xlim = [15,60],
+    inset_axes_ylim = [0.987,1.008],
+    # plot_arrow = [[12, "", "up", 0.8, 0.1, ["n"]],
+    #               [12, "", "down", 0.87, 0.1, ["ms"]],
+    #               [12, "", "down", 0.85, 0.15, ["inset"]],
+    #               ],
+    subplot_labels = [["ms", "a", (0.95, 0.15)],
+                      ["n", "b", (0.95, 0.1)],
+                      ["inset", "c", (0.05, 0.05)],
+                      ],
+    subplot_label_size = 120,
+    # double_figure_size = (12,8),
+    plot_line_width = 12,
+    axes_label_font_size = 82,
+    custom_temp_ylimits=(0,140),
+    custom_ms_ylimits = (0.00000000001, 0.00005),
+)
+
+figure_4 = FigPars(
+    output_subdir = "Paper Figures/04 Catalyst Cleaning",
+    fig_name = "Figure 4",
+    plot_mode = "both",
+    # smooth = False,
+    savgol_window = 21,
+    savgol_polyorder = 3,
+    crop_time = True,
+    start_time = "2024-12-15 18:20:00",
+    end_time = "2024-12-15 20:20:00",
+    mask_ndata = True,
+    mask_range = [("2024-12-15 19:15:00", "2024-12-15 19:40:00"),
+                  ],    mass_spec_pars = [('Hydrogen (2)', 0, 'below', 'Hydrogen'),
+                      ('Helium (4)', 1, 'above', 'Helium'),
+                      ('Water (18)', 2, 'above', 'Water'),
+                      ('Acetylene (26)', 3, 'above', 'Acetylene (26)'),
+                      # ('Ethylene/Ethane (27)', 4, 'below', 'Ethene (27)'),
+                      ('N2/CO/C2H4 (28)', 5, 'above', 'Ethene (28)'),
+                      ('Ethane (30)', 6, 'above', 'Ethane (30)'),
+                      ('Argon (40)', 7, 'below', 'Argon'),
+                      ],
+    plot_temp = True,
+    # smooth_temp = True,
+    plot_inset = False,
+    inset_axes_loc = [0.02, 0.25, 0.2, 0.7],
+    inset_axes_xlim = [4,25],
+    inset_axes_ylim = [0.985,1.015],
+    plot_arrow = [[16, "", "down", 0.65, 0.1, ["n"]],
+                  [16, "", "down", 0.87, 0.1, ["ms"]],
+                  # [12, "", "down", 0.85, 0.15, ["inset"]],
+                  ],
+    subplot_labels = [["ms", "a", (0.95, 0.15)],
+                      ["n", "b", (0.95, 0.1)],
+                      ["inset", "c", (0.05, 0.05)],
+                      ],
+    subplot_label_size = 120,
+    # double_figure_size = (12,8),
+    plot_line_width = 12,
+    axes_label_font_size = 82,
+    custom_temp_ylimits=(0,140),
+    custom_ms_ylimits = (0.00000000001, 0.00005),
 )
 
 # Generate a list of figures you would like to plot, with their
 # respective parameters
-figs_to_plot = [figure_1,
+figs_to_plot = [None,
+                figure_1,
+                figure_2,
+                figure_3,
+                figure_4,
+                figure_1bl,
                 ]
 
 grid_fig_1 = ColourMapFig(
@@ -269,14 +454,16 @@ grid_fig_1 = ColourMapFig(
 grid_figs = [grid_fig_1]
 
 diff_img_1 = DiffImg(
-    run = 1,
-    output_subdir = "Analysis Outputs/Diff Fig 1/",
-    fig_name = "Diff Fig 1",
-    ref_image = "/data/analysis/IMAT/RBNumber/RB2420048/Cell_Pd_on_Alumina/Paper Analysis/32939_PH80_CatalystActivation_Grid/reference_image.tif",
+    run = 2,
+    output_subdir = "Paper Figures/Acetylene Diff Fig 1 Late Reference/",
+    fig_name = "Acetylene Diff Fig 1 Late Reference",
+    ref_image = "/home/hc1089498/Desktop/IMAT 4 (RB2420048)/Cell_Pd_on_Alumina/Paper Analysis/32940_PH80_Acetylene_HydrogenRich_fullframes_2/reference_image.tif",
     crop_limits = ((480, 300), (1100, 1200)),
-    # frame_select = (0, 500),
+    frame_select = (885, 3736),
     scale_bar = (0.103, 20),         # "(pixel scale in mm, scale bar size in mm)"
+    timestamp_colour = "black",
     
     )
 
-diff_imgs = [diff_img_1]
+diff_imgs = [None,
+             diff_img_1]

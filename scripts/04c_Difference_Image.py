@@ -38,10 +38,10 @@ from utils import create_outputdir, save_runtime
 from cfg import experiment, run_data, diff_imgs
 
 # Set which run to analyse
-run = 3
+run = 2
 run = run_data[run]
 
-img = 0
+img = 1
 diffimg = diff_imgs[img]
 
 

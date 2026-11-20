@@ -36,7 +36,7 @@ from pathlib import Path
 from matplotlib_scalebar.scalebar import ScaleBar
 from skimage import io
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from utils import create_outputdir, save_runtime
+from utils import create_outputdir, save_runtime, beer_lambert_conv
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -194,13 +194,6 @@ def _process_one_frame(args):
     plt.close(fig)
     return idx, filename
 
-# Define a function that converts to concentration from transmission
-# percentage if Beer-Lambert is being used
-# Takes a fractional grey value (e.g. 0.99 for 1% loss of transmission)
-def beer_lambert_conv(delta, thickness, total_crosssection):
-    conc = 1000 * (-np.log(delta)/(1 * thickness)/total_crosssection/1e-24/6.02e23)
-    return conc
-
 # Get the run .csv files from the config file
 input_dir = Path(experiment.exp_outputs_path)
 run = run_data[figpars.run]
@@ -342,7 +335,7 @@ else:
 # Load the reference image for plotting over
 ref_image = io.imread(figpars.ref_image)
 
-if figpars.crop_image:
+if figpars.crop_limits:
     print("Cropping image")
     print(" ")
     ref_image, grid = crop_image_and_grid(

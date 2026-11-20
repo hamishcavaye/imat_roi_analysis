@@ -44,3 +44,10 @@ def save_runtime(output_dir, filename, run_time):
     print(" ")
     print("--- Processing finished in %s seconds ---" % (int(run_time)))
     (output_dir / filename).write_text(f"Total run time = {run_time} s")
+    
+# Define a function that converts to concentration from transmission
+# percentage if Beer-Lambert is being used
+# Takes a fractional grey value (e.g. 0.99 for 1% loss of transmission)
+def beer_lambert_conv(delta, thickness, total_crosssection):
+    conc = 1000 * (-np.log(delta)/(1 * thickness)/total_crosssection/1e-24/6.02e23)
+    return conc

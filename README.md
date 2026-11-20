@@ -8,7 +8,7 @@ The workflow performs:
 - Parsing of data from a mass spectrometer
 - Parsing of temperature logs
 - Image calibration and ROI extraction
-- Multi-run time-aligned figure plotting
+- Multi-run time-aligned figure plotting with or without Beer-Lambert concentration conversions
 - Timelapse grid "heat maps" with or without Beer-Lambert concentration conversions
 - Automatic generation of difference images by subtraction of a reference
 

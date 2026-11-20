@@ -50,7 +50,7 @@ from utils import outlier_removal, create_outputdir, save_runtime
 from cfg import experiment, run_data
 
 # Set which run to analyse
-run = 1
+run = 2
 run = run_data[run]
 
 ###############################################################################
@@ -110,6 +110,16 @@ master_dark = io.imread(dark_flat_path / "master_dark.tif")
 master_flat_dark_corrected = io.imread(dark_flat_path / "dark_subtracted_master_flat.tif")
 inverse_master_flat = 1.0 / np.maximum(master_flat_dark_corrected.astype(np.float32, copy=False), 1e-6)
 
+# Crop the calibration frames if desired
+# if run.crop_images:
+#     x = run.crop_area[0]
+#     y = run.crop_area[1]
+#     w = run.crop_area[2]
+#     h = run.crop_area[3]
+#     _s = slice(int(y), int(y+h)), slice(int(x), int(x+w))
+#     master_dark = master_dark[_s]
+#     inverse_master_flat = inverse_master_flat[_s]
+
 # Get the full list of filenames and truncate if necessary
 print("---")
 print("Obtaining filenames for processing...")
@@ -165,7 +175,7 @@ print(" ")
 # It uses a number of "global" variables
 def process_frame_and_save(i, frame):
     im = io.imread(frame)
-
+    
     # Outlier removal via the function, above
     if experiment.remove_outliers:
         im = outlier_removal(im, experiment.bright_threshold, experiment.dark_threshold, experiment.outlier_radius)
@@ -177,6 +187,14 @@ def process_frame_and_save(i, frame):
     # normalise the image so that this equals 1
     cal_roi = np.mean(im[calib_slice])
     im = im / cal_roi
+
+    if run.crop_image:
+        x = run.crop_area[0]
+        y = run.crop_area[1]
+        w = run.crop_area[2]
+        h = run.crop_area[3]
+        _s = slice(int(y), int(y+h)), slice(int(x), int(x+w))
+        im = im[_s]
 
     # Determine if you are processing a simple ROI list or a full grid
     if experiment.roi_grid:
@@ -314,9 +332,11 @@ if experiment.save_reference_frame:
     ax.add_patch(rect)
     # Add any standard/quantification ROIs that may be in the image
     if standard_rois:
+        num_rois = len(roi_groups[run.roi_list])
         for count, roi in enumerate(standard_rois, start=0):
             rect = patches.Rectangle((roi[0], roi[1]), roi[2], roi[3],
                                      linewidth = 6,
+                                     # edgecolor = colours[count + num_rois],
                                      edgecolor = "white",
                                      facecolor="none")
             ax.add_patch(rect)

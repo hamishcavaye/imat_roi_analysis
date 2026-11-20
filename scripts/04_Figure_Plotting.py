@@ -27,10 +27,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.transforms as transforms
 import time, json
+import numpy as np
 from scipy.signal import savgol_filter
 from dataclasses import asdict
 from pathlib import Path
-from utils import create_outputdir, save_runtime
+from utils import create_outputdir, save_runtime, beer_lambert_conv
 
 # Import the variables from the experiment config file
 # Make sure to add the folder with this file to the sys.path and that no other
@@ -38,7 +39,7 @@ from utils import create_outputdir, save_runtime
 from cfg import experiment, run_data, figs_to_plot
 
 # Choose which figure to plot (counts from 0!)
-figpars = figs_to_plot[0]
+figpars = figs_to_plot[5]
 
 ###############################################################################
 
@@ -103,7 +104,8 @@ for a_time in total_data['Absolute Time']:
         e_time = e_time/60
     elapsed_time_list.append(e_time)
 total_data.insert(loc=1, column='Elapsed Time', value = pd.Series(elapsed_time_list))
-total_data.sort_values('Absolute Time', inplace=True)
+total_data = total_data.sort_values('Absolute Time')
+
 
 print("Successfully loaded "+str(len(runs))+" runs.")
 print(" ")
@@ -227,6 +229,13 @@ else:
 # Define some functions that will plot the various datasets
 def plot_mass_spec(ax, ms_data):
     ax.set_label("ms")
+    # Set the y-axis scale to log
+    ax.set_yscale('log')
+    # Determine limits to use when finding visible points for annotating
+    if figpars.custom_ms_ylimits:
+        ymin, ymax = figpars.custom_ms_ylimits
+    else:
+        ymin, ymax = None, None
     for count, line in enumerate(ms_data.columns):
         if line != 'Elapsed Time' and line != 'Absolute Time' and line in([frag[0] for frag in figpars.mass_spec_pars]):
             # This little for/if section gets the correct plot colour for the 
@@ -237,23 +246,37 @@ def plot_mass_spec(ax, ms_data):
                     label = frag[3]
                     if frag[2] == "above":
                         xy_pos = (-50,10)
+                        vert_al = 'bottom'
                     elif frag[2] == "below":
-                        xy_pos = (-50,-130)
-            ax.plot(ms_data['Elapsed Time'],
-                        ms_data[line],
-                        linewidth=figpars.plot_line_width, c=col)
+                        xy_pos = (-50,-10)
+                        vert_al = 'top'
+            # Plot the line itself
+            xdata = ms_data['Elapsed Time']
+            ydata = ms_data[line]
+            ax.plot(xdata,
+                    ydata,
+                    linewidth=figpars.plot_line_width,
+                    c=col
+                    )
+            # Find visible points for annotations
+            visible = np.isfinite(ydata) & (ydata > 0)
+            if ymin is not None and ymax is not None:
+                visible &= (ydata >= ymin) & (ydata <= ymax)
+            # Use the last visible point for annotation
+            visible_index = np.where(visible)[0]
+            if len(visible_index) > 0:
+                idx = visible_index[-1]
             ax.annotate(label,
-                        xy=(ms_data['Elapsed Time'].iloc[-1], ms_data[line].iloc[-1]), 
+                        xy=(xdata.iloc[idx], ydata.iloc[idx]), 
                         xytext=xy_pos, 
-                        horizontalalignment='right', 
+                        horizontalalignment='right',
+                        verticalalignment=vert_al,
                         fontsize=figpars.mass_spec_label_size,
                         xycoords='data', 
                         textcoords='offset pixels',
-                        verticalalignment='bottom',
-                        annotation_clip = False,
-                        c=col)
-    # Set the y-axis scale to log
-    ax.set_yscale('log')
+                        annotation_clip = True,
+                        c=col
+                        )
     # change all spines
     for axis in ['top','bottom','left','right']:
         ax.spines[axis].set_linewidth(4)
@@ -262,6 +285,7 @@ def plot_mass_spec(ax, ms_data):
         ax.set_ylim(figpars.custom_ms_ylimits[0], figpars.custom_ms_ylimits[1])
 
 def plot_neutron(ax, n_data):     
+    ax.set_label("n")
     if figpars.plot_inset:
         inset_ax = ax.inset_axes(figpars.inset_axes_loc,
                                  xlim=figpars.inset_axes_xlim,
@@ -270,33 +294,50 @@ def plot_neutron(ax, n_data):
                                  yticklabels=[]
                                  )
         inset_ax.set_label("inset")
-    ax.set_label("n")
     for count, line in enumerate(n_data.columns):
-        if line != 'Elapsed Time' and line != 'Absolute Time' and ("Standard" not in line):
-            if figpars.mask_ndata:
-                ax.plot(n_data.loc[mask, 'Elapsed Time'], n_data.loc[mask, line], 
-                         linewidth=figpars.plot_line_width, c=colours[count-2])
-            else:
-                ax.plot(n_data['Elapsed Time'], n_data[line], 
-                         linewidth=figpars.plot_line_width, c=colours[count-2])
+        # Do not plot the Elapsed or Absolute time data series
+        if line in ('Elapsed Time', 'Absolute Time'):
+            continue
+        # Do not plot the "Standard" data
+        if "Standard" in line:
+            continue
+        if figpars.mask_ndata:
+            y_data = n_data[line].copy()
+            y_data[~mask] = np.nan
+        else:
+            y_data = n_data[line]
+        if figpars.bl:
+            y_data = beer_lambert_conv(y_data,
+                                       figpars.samp_thickness,
+                                       figpars.total_xsection
+                                       )
+        ax.plot(n_data['Elapsed Time'], y_data, 
+                 linewidth=figpars.plot_line_width, c=colours[count-2])
         if figpars.plot_inset:
-            inset_ax.plot(n_data['Elapsed Time'], n_data[line],
+            inset_ax.plot(n_data['Elapsed Time'], y_data,
                         c=colours[count-2], linewidth=figpars.plot_line_width)
-    # change all spines
+    # Change all spines
     for axis in ['top','bottom','left','right']:
         ax.spines[axis].set_linewidth(4)
         if figpars.plot_inset:
             inset_ax.spines[axis].set_linewidth(4)
     if figpars.plot_inset:
-        ax.indicate_inset_zoom(inset_ax, edgecolor="black", linewidth = 5, alpha = None)
+        indicator = ax.indicate_inset_zoom(inset_ax, edgecolor="black", linewidth = 5, alpha = None)
+        for conn in indicator.connectors:
+            conn.set_visible(True)
         inset_ax.tick_params(axis='x', labelsize=figpars.tick_font_size, pad=10, length=10, width=3)
         inset_ax.tick_params(axis='y', labelsize=figpars.tick_font_size, pad=10, length=10, width=3)
     if figpars.normalise:
-        ax.set_ylabel("Ave. Grey Value (Norm., Arb. units)", fontsize=figpars.axes_label_font_size)
+        if figpars.bl:
+            ax.set_ylabel(figpars.bl_axis_title, fontsize=figpars.axes_label_font_size)
+        else:
+            ax.set_ylabel("Ave. Grey Value (Norm., Arb. units)", fontsize=figpars.axes_label_font_size)
     else:
         ax.set_ylabel("Ave. Grey Value (Arb. units)", fontsize=figpars.axes_label_font_size)
     if figpars.custom_neutron_ylimits:
         ax.set_ylim(figpars.custom_neutron_ylimits[0], figpars.custom_neutron_ylimits[1])
+
+
 
 def plot_temp(ax, t_data):
     ax2 = ax.twinx()
@@ -324,8 +365,7 @@ def plot_arrow_pct(ax, x_val, label, direction="up", y_pct=0.5, length_pct=0.1):
     ax.annotate(label, xy=(x_val, y_end), xycoords=trans, xytext=(x_val, y_start),
                 fontsize=80, ha='center', va=va,
                 arrowprops=dict(facecolor='red', width=25, headwidth=50,
-                                headlength=50, shrink=0.05),
-                transform=trans)
+                                headlength=50, shrink=0.05), transform=trans, zorder=1000)
 
 # Define a main function to actually plot the data, using the plot functions
 # that are above
@@ -338,6 +378,7 @@ def plot_figure(n_data, ms_data=None, t_data=None, mode="both"):
         if t_data is not None:
             plot_temp(ax_top, t_data)
         label_ax = ax_bottom
+        ax_top.set_zorder(10)
     elif mode == "ms_only":
         fig, ax_top = plt.subplots(figsize=figpars.figure_size)
         plot_mass_spec(ax_top, ms_data)
@@ -356,7 +397,9 @@ def plot_figure(n_data, ms_data=None, t_data=None, mode="both"):
                 ax.axvline(x = line, color = 'r', linestyle = '--', linewidth = 10)
         if figpars.plot_arrow:
             for arrow in figpars.plot_arrow:
-                plot_arrow_pct(ax, arrow[0], arrow[1], direction=arrow[2], y_pct=arrow[3], length_pct=arrow[4])
+                if ax.get_label() in arrow[5]:
+                    print("Plotting arrow on axis " + ax.get_label())
+                    plot_arrow_pct(ax, arrow[0], arrow[1], direction=arrow[2], y_pct=arrow[3], length_pct=arrow[4])
         if figpars.subplot_labels:
             for label in figpars.subplot_labels:
                 if label[0] == ax.get_label():
@@ -368,7 +411,17 @@ def plot_figure(n_data, ms_data=None, t_data=None, mode="both"):
             for label in figpars.subplot_labels:
                 if label[0] == inset.get_label():
                     inset.annotate(label[1], xy = label[2], xycoords = "axes fraction", fontsize = figpars.subplot_label_size)
-                
+    if figpars.plot_inset and figpars.plot_arrow:
+        all_axes = fig.axes
+        insets = [child for ax in all_axes for child in ax.get_children() if isinstance(child, plt.Axes)]
+        for inset in insets:
+                for arrow in figpars.plot_arrow:
+                    if inset.get_label() in arrow[5]:
+                        print("Plotting arrow on axis " + inset.get_label())
+                        xmin, xmax = inset.get_xlim()
+                        x_pos = arrow[0]
+                        if xmin <= x_pos <= xmax:
+                            plot_arrow_pct(inset, arrow[0], arrow[1], direction=arrow[2], y_pct=arrow[3], length_pct=arrow[4])
     x_label = "Time (min)" if figpars.conv_mins else "Time (s)"
     label_ax.set_xlabel(x_label, fontsize=figpars.axes_label_font_size)
     plt.tight_layout()
@@ -384,7 +437,10 @@ else:
 
 # If you want to omit a region of the neutron data then this will mask a section
 if figpars.mask_ndata:
-    mask = (data_to_plot["Absolute Time"] < figpars.mask_start) | (data_to_plot["Absolute Time"] > figpars.mask_end)
+    mask = np.ones(len(data_to_plot), dtype = bool)
+    for start, end in figpars.mask_range:
+        mask &= (
+            data_to_plot["Absolute Time"] < start) | (data_to_plot["Absolute Time"] > end)
 
 # Actually call the plot function to plot the desired figure
 figure = plot_figure(data_to_plot, filtered_mass_spec, filtered_temperature, figpars.plot_mode)
